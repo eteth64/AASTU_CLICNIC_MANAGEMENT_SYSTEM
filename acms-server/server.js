@@ -12,7 +12,6 @@ const labRoutes = require('./routes/lab');
 const nurseRoutes = require('./routes/nurse');
 const pharmacyRoutes = require('./routes/pharmacy');
 const inventoryRoutes = require('./routes/inventory');
-
 const app = express();
 const PORT = process.env.SERVER_PORT || 3000;
 

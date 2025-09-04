@@ -483,20 +483,24 @@ export default function Dashboard() {
             )}
           </div>
 
-          <footer className="bg-blue-50 border-t py-4">
+          <footer className="bg-[#0A2342] border-t py-4">
             <div className="container mx-auto px-4">
-              <div className="flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
+              <div className="flex flex-col md:flex-row items-center justify-between text-sm text-white">
+
                 <div className="mb-2 md:mb-0">
                   &copy; {new Date().getFullYear()} AASTU Clinical Management System (ACMS)
                 </div>
-                <div className="flex items-center space-x-4">
+
+                <div className="flex items-center space-x-4 text-gray-300">
                   <span>Version 1.0.0</span>
                   <span>•</span>
                   <span>All rights reserved</span>
                 </div>
+
               </div>
             </div>
           </footer>
+
         </div>
       </div>
     </div>

@@ -1,5 +1,4 @@
 -- Create database if not exists
-
 CREATE DATABASE IF NOT EXISTS acms_db;
 
 USE acms_db;
@@ -217,9 +216,9 @@ INSERT
 VALUES
     (
         '001',
-        'John',
-        'Doe',
-        'john.doe@aastu.edu',
+        'Simbo',
+        'geleta',
+        'simbo.gelta@aastu.edu',
         2,
         'Computer engineering'
     ),
