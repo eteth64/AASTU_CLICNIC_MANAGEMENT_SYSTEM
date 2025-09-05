@@ -33,12 +33,12 @@ export default function Register() {
 
   const handleSearch = async () => {
     if (!searchId.trim()) return;
-    
+
     setIsSearching(true);
-    
+
     // Simulate API call to check if student exists
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // For demo - simulate different scenarios
     if (searchId === 'AASTU001') {
       setStudentFound({
@@ -62,36 +62,36 @@ export default function Register() {
       setShowRegistrationForm(true);
       setFormData({ ...formData, universityId: searchId });
     }
-    
+
     setIsSearching(false);
   };
 
   const handleActivateStudent = async () => {
     if (!studentFound) return;
-    
+
     setIsSearching(true);
-    
+
     // Simulate activation API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Update student status and forward to doctor
     setStudentFound({ ...studentFound, isActive: true });
-    
+
     // Show success and redirect
     setTimeout(() => {
       navigate('/dashboard');
     }, 2000);
-    
+
     setIsSearching(false);
   };
 
   const handleRegisterNew = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsRegistering(true);
-    
+
     // Simulate registration API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     // Create new student record
     const newStudent: Student = {
       id: Date.now().toString(),
@@ -207,7 +207,7 @@ export default function Register() {
                     <p className="text-sm">Year {studentFound.year}</p>
                   </div>
                 </div>
-                
+
                 <Button onClick={handleActivateStudent} className="w-full" disabled={isSearching}>
                   {isSearching ? 'Activating...' : 'Activate Student & Send to Doctor'}
                 </Button>
@@ -304,7 +304,7 @@ export default function Register() {
                       readOnly
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="name">Full Name *</Label>
                     <Input
@@ -314,7 +314,7 @@ export default function Register() {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="email">Email *</Label>
                     <Input
@@ -325,7 +325,7 @@ export default function Register() {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
                     <Input
@@ -335,7 +335,7 @@ export default function Register() {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="department">Department *</Label>
                     <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
@@ -355,7 +355,7 @@ export default function Register() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="year">Year of Study *</Label>
                     <Select value={formData.year} onValueChange={(value) => setFormData({ ...formData, year: value })}>
@@ -372,7 +372,7 @@ export default function Register() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="emergencyContact">Emergency Contact *</Label>
                     <Input
@@ -382,7 +382,7 @@ export default function Register() {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="bloodType">Blood Type (Optional)</Label>
                     <Select value={formData.bloodType} onValueChange={(value) => setFormData({ ...formData, bloodType: value })}>
@@ -402,7 +402,7 @@ export default function Register() {
                     </Select>
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="allergies">Known Allergies (Optional)</Label>
                   <Textarea
@@ -412,7 +412,7 @@ export default function Register() {
                     onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="flex space-x-4">
                   <Button type="submit" className="flex-1" disabled={isRegistering}>
                     {isRegistering ? 'Registering...' : 'Register & Activate Student'}
