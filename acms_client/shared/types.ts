@@ -25,15 +25,23 @@ export interface DashboardStats {
 
 export interface Student {
   id: string;
-  student_id: string;
-  first_name: string;
-  last_name: string;
+  universityId: string;      // added
+  name: string;              // added
   email: string;
+  phone: string;
   department: string;
   year: number;
-  blood_type?: string;
-  phone?: string;
+  emergencyContact?: string; // added
+  bloodType?: string;        // renamed from blood_type
+  allergies?: string[];      // added
+  isActive: boolean;         // added
+  isFirstVisit: boolean;     // added
+  createdAt: Date;           // added
+  updatedAt: Date;           // added
+  portalAccessCode?: string; // optional, since you used it
 }
+
+
 
 export interface ReceptionRequest {
   request_id: string;

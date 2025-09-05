@@ -40,7 +40,7 @@ export default function Register() {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // For demo - simulate different scenarios
-    if (searchId === 'AASTU001') {
+    if (searchId === 'ETS0117/14') {
       setStudentFound({
         id: '1',
         universityId: searchId,
