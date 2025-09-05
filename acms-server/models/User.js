@@ -11,6 +11,10 @@ const User = {
         const query = 'SELECT * FROM users WHERE email = ?';
         db.execute(query, [email], callback);
     },
+    findByResetToken: (token, callback) => {
+        const query = 'SELECT * FROM users WHERE reset_token = ? AND reset_token_expire > NOW()';
+        db.execute(query, [token], callback);
+    },
 
     findById: (id, callback) => {
         const query = 'SELECT * FROM users WHERE user_id = ?';
@@ -33,9 +37,9 @@ const User = {
     },
 
     // ✅ NEW: Update user password
-    updatePassword: (id, newPassword, callback) => {
-        const query = 'UPDATE users SET password = ? WHERE user_id = ?';
-        db.execute(query, [newPassword, id], callback);
+    updatePassword: (userId, hashedPassword, callback) => {
+        const query = 'UPDATE users SET password = ?, reset_token = NULL, reset_token_expire = NULL WHERE user_id = ?';
+        db.execute(query, [hashedPassword, userId], callback);
     },
 
     // ✅ NEW: Save reset token + expiry

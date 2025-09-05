@@ -23,6 +23,6 @@ router.put('/change-password', protect, changePassword);
 router.post('/forgot-password', forgotPassword);
 
 // ♻️ Reset password (with token from email link)
-router.post('/reset-password/:token', resetPassword);
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

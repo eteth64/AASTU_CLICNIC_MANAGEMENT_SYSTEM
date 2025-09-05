@@ -4,6 +4,7 @@ CREATE DATABASE IF NOT EXISTS acms_db;
 USE acms_db;
 
 -- Users/Staff Table
+
 CREATE TABLE IF NOT EXISTS users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,
