@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS patient_histories (
 
 -- Lab Orders Table
 CREATE TABLE IF NOT EXISTS lab_orders (
-    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT////// PRIMARY KEY AUTO_INCREMENT,
     request_id INT NOT NULL,
     doctor_id INT NOT NULL,
     lab_request TEXT NOT NULL,

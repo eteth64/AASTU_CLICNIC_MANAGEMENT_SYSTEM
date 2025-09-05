@@ -62,5 +62,58 @@ const getMe = (req, res) => {
         role: req.user.role
     });
 };
+// Add after login and getMe
+const changePassword = async(req, res) => {
+    const { oldPassword, newPassword } = req.body;
 
-module.exports = { login, getMe };
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ message: 'Please provide old and new passwords' });
+    }
+
+    const user = await User.findById(req.user.user_id);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+        return res.status(401).json({ message: 'Old password is incorrect' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+};
+
+const forgotPassword = async(req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Please provide an email' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate reset token and send email (implementation not shown)
+    res.json({ message: 'Password reset email sent' });
+};
+
+const resetPassword = async(req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ message: 'Please provide token and new password' });
+    }
+
+    // Verify token and reset password (implementation not shown)
+    res.json({ message: 'Password reset successfully' });
+};
+
+module.exports = { login, getMe, changePassword, forgotPassword, resetPassword };

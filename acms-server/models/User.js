@@ -30,6 +30,24 @@ const User = {
     updateRole: (id, role, callback) => {
         const query = 'UPDATE users SET role = ? WHERE user_id = ?';
         db.execute(query, [role, id], callback);
+    },
+
+    // ✅ NEW: Update user password
+    updatePassword: (id, newPassword, callback) => {
+        const query = 'UPDATE users SET password = ? WHERE user_id = ?';
+        db.execute(query, [newPassword, id], callback);
+    },
+
+    // ✅ NEW: Save reset token + expiry
+    saveResetToken: (id, token, expire, callback) => {
+        const query = 'UPDATE users SET reset_token = ?, reset_token_expire = ? WHERE user_id = ?';
+        db.execute(query, [token, expire, id], callback);
+    },
+
+    // ✅ NEW: Find user by reset token
+    findByResetToken: (token, callback) => {
+        const query = 'SELECT * FROM users WHERE reset_token = ?';
+        db.execute(query, [token], callback);
     }
 };
 
