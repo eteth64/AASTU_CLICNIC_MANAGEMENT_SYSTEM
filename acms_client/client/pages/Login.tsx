@@ -122,6 +122,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  autoComplete="new-password"   // ✅ added here
                 />
               </div>
 
