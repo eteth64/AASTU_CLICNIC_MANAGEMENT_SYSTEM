@@ -67,4 +67,23 @@ const fetchAnalytics = (req, res) => {
     });
 };
 
-module.exports = { searchStudent, createRequest, fetchAnalytics };
+// New: search students by name
+const searchStudentsByName = (req, res) => {
+    const { name } = req.query;
+
+    if (!name) {
+        return res.status(400).json({ message: 'Please provide a name to search' });
+    }
+
+    // Example if you're using Mongoose:
+    StudentData.find({ name: { $regex: name, $options: 'i' } }, // case-insensitive search
+        (error, students) => {
+            if (error) {
+                return res.status(500).json({ message: 'Server error' });
+            }
+            res.json(students);
+        }
+    );
+};
+
+module.exports = { searchStudent, createRequest, fetchAnalytics, searchStudentsByName };
