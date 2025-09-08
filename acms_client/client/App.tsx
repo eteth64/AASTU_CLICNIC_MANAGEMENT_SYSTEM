@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/reception/Register";
+import UploadStudents from "./pages/UploadStudents";
+
 
 
 import NotFound from "./pages/NotFound";
@@ -43,7 +45,14 @@ const App = () => (
               <Register />
             </ProtectedRoute>
           } />
-
+          <Route
+  path="/admin/upload-students"
+  element={
+    <ProtectedRoute>
+      <UploadStudents />
+    </ProtectedRoute>
+  }
+/>
           {/* Other protected routes... */}
           <Route path="*" element={<NotFound />} />
         </Routes>

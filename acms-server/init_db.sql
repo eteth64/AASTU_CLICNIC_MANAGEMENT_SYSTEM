@@ -104,9 +104,6 @@ CREATE TABLE IF NOT EXISTS prescription_requests (
 );
 
 
-
-
-
 -- Inventory Table
 CREATE TABLE IF NOT EXISTS inventory (
     inventory_id INT PRIMARY KEY AUTO_INCREMENT,

@@ -1,3 +1,5 @@
+// import UploadStudents from "@/pages/UploadStudents";
+
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Generic API request function
@@ -59,6 +61,7 @@ export const adminAPI = {
     }),
   getStudents: () => apiRequest('/admin/students'),
   getAnalytics: () => apiRequest('/admin/analytics'),
+   
 };
 
 // Reception API calls
@@ -95,6 +98,7 @@ export const doctorAPI = {
       body: JSON.stringify(consultationData),
     }),
 };
+
 
 // Lab API calls
 export const labAPI = {

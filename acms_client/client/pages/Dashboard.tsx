@@ -204,7 +204,8 @@ export default function Dashboard() {
         title: 'Inventory Management', description: 'Manage clinic inventory', icon: Settings, link: '/admin/inventory', expandable: true, subItems: [
           { title: 'Add New Inventory', description: 'Add new inventory items', icon: Settings, link: '/admin/add-inventory' }
         ]
-      }
+      },
+      { title: 'Upload', description: 'upload students data', icon: Users, link: '/admin/students' }
     ]
   };
 

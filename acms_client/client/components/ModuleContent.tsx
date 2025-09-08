@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+import axiosInstance from "axios"; 
 import {
   Search,
   UserPlus,
@@ -136,6 +138,7 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
     year: '',
     visitStatus: ''
   });
+
   const [inventoryFilters, setInventoryFilters] = useState({
     category: '',
     status: ''
@@ -159,6 +162,9 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
   const [patientHistory, setPatientHistory] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState(null);
+    const [file, setFile] = useState<File | null>(null);
+    const [message, setMessage] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
 
   const labTestOptions = [
     { value: 'cbc', label: 'Complete Blood Count (CBC)' },
@@ -245,6 +251,10 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
 
     fetchData();
   }, [moduleKey, role]);
+
+
+
+
 
   const handleStudentSearch = async () => {
     if (!formData.studentId) {
@@ -787,6 +797,49 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
 
 
 
+  const handleUpload = async () => {
+    if (!file) {
+      setMessage("Please select a CSV file");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      
+      const res = await axiosInstance.post("/api/admin/upload-students", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      // Check response for inserted count or errors
+      if (res.data.errors && res.data.errors.length > 0) {
+        setErrors(res.data.errors);
+        setMessage("Some rows failed to upload");
+      } else {
+        setMessage(res.data.message || "Upload successful");
+        setErrors([]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setMessage(err.response?.data?.message || "Upload failed");
+      setErrors([]);
+    }
+  };
+
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        setFile(e.target.files[0]);
+        setMessage("");
+        setErrors([]);
+      }
+    };
+
+
+
   const renderReceptionistModules = () => {
     switch (moduleKey) {
       case 'Student Search':
@@ -888,17 +941,17 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Student Basic Info */}
-                      {studentData.student.length > 0 ? (<>
+                      {studentData.student ? (<>
                         <div className="space-y-4">
                           <div className="flex items-center space-x-4">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
                               <span className="text-lg font-bold text-blue-600">
-                                {studentData.student[0].first_name?.charAt(0)}{studentData.student[0].last_name?.charAt(0)}
+                                {studentData.student.first_name?.charAt(0)}{studentData.student.last_name?.charAt(0)}
                               </span>
                             </div>
                             <div>
                               <h3 className="text-lg font-semibold">
-                                {studentData.student[0].first_name} {studentData.student[0].last_name}
+                                {studentData.student.first_name} {studentData.student.last_name}
                               </h3>
                               <p className="text-sm text-muted-foreground">{formData.studentId}</p>
                               {studentData.lastRequest.length > 0 && (
@@ -912,15 +965,15 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label className="text-sm font-medium">Email</Label>
-                              <p className="text-sm">{studentData.student[0].email}</p>
+                              <p className="text-sm">{studentData.student.email}</p>
                             </div>
                             <div>
                               <Label className="text-sm font-medium">Department</Label>
-                              <p className="text-sm">{studentData.student[0].department}</p>
+                              <p className="text-sm">{studentData.student.department}</p>
                             </div>
                             <div>
                               <Label className="text-sm font-medium">Year of Study</Label>
-                              <p className="text-sm">Year {studentData.student[0].year}</p>
+                              <p className="text-sm">Year {studentData.student.year}</p>
                             </div>
                             <div>
                               {studentData.lastRequest.length > 0 && (
@@ -3922,7 +3975,38 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
             </CardContent>
           </Card>
         );
-      default:
+      case 'Upload':
+                return (
+            <div className="p-4">
+              <h1 className="text-xl font-bold mb-4">Upload Students CSV</h1>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="border p-2 rounded"
+              />
+              <button
+                onClick={handleUpload}
+                className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Upload
+              </button>
+
+              {message && <p className="mt-4 text-green-600">{message}</p>}
+
+              {errors.length > 0 && (
+                <div className="mt-2 text-red-600">
+                  <p>Errors:</p>
+                  <ul className="list-disc pl-5">
+                    {errors.map((err, idx) => (
+                      <li key={idx}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        default:
         return (
           <Card>
             <CardHeader>
