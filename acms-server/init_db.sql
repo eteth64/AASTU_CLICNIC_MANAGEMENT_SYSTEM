@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS patient_histories (
     FOREIGN KEY (doctor_id) REFERENCES users(user_id)
 );
 
+
 -- Lab Orders Table
 CREATE TABLE IF NOT EXISTS lab_orders (
     order_id INT////// PRIMARY KEY AUTO_INCREMENT,

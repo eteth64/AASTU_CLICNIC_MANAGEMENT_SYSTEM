@@ -153,3 +153,56 @@ export const inventoryAPI = {
     }),
   getTransactions: () => apiRequest('/inventory/transactions'),
 };
+
+// upload students API call
+export const uploadAPI = {
+  uploadStudents: (formData: FormData) =>
+    fetch(`${API_BASE_URL}/admin/students/upload`, {  
+      method: 'POST',
+      body: formData,
+    }).then(response => { 
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }); 
+      }
+      return response.json();
+    })
+};
+
+export const adminAPIs = {
+  getUsers: () => apiRequest('/admin/users'),
+  createUser: (userData: any) => 
+    apiRequest('/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    }),
+  updateUserStatus: (id: string, isActive: boolean) =>
+    apiRequest(`/admin/users/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_active: isActive }),
+    }),
+  updateUserRole: (id: string, role: string) =>
+    apiRequest(`/admin/users/${id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    }),
+  getStudents: () => apiRequest('/admin/students'),
+  getAnalytics: () => apiRequest('/admin/analytics'),
+  // Add upload students endpoint
+  uploadStudents: (formData: FormData) =>
+    fetch(`${API_BASE_URL}/admin/students/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('acms-token')}`,
+      },
+      body: formData,
+    }).then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        });
+      }
+      return response.json();
+    })
+};

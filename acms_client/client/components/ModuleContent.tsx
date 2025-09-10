@@ -44,7 +44,8 @@ import {
   labAPI,
   pharmacyAPI,
   nurseAPI,
-  inventoryAPI
+  inventoryAPI,
+  adminAPIs
 } from '@/lib/api';
 import { open } from 'inspector/promises';
 
@@ -433,9 +434,6 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
     }
   };
 
-
-
-
   const handleFetchLabResult = async (requestId: string): Promise<LabResult[] | null> => {
     try {
       // Validate requestId
@@ -797,47 +795,65 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
 
 
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a CSV file");
-      return;
-    }
+// Add these state variables to your component
+// const [file, setFile] = useState<File | null>(null);
+const [uploadMessage, setUploadMessage] = useState("");
+const [uploadErrors, setUploadErrors] = useState<any[]>([]);
 
-    const formData = new FormData();
-    formData.append("file", file);
+// Add these handle functions
+const handleUpload = async () => {
+  if (!file) {
+    setUploadMessage("Please select a CSV file");
+    toast({
+      title: "Error",
+      description: "Please select a CSV file",
+      variant: "destructive"
+    });
+    return;
+  }
 
-    try {
-      
-      const res = await axiosInstance.post("/api/admin/upload-students", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await adminAPIs.uploadStudents(formData);
+
+    // Check response for inserted count or errors
+    if (response.errors && response.errors.length > 0) {
+      setUploadErrors(response.errors);
+      setUploadMessage("Some rows failed to upload");
+      toast({
+        title: "Warning",
+        description: "Some rows failed to upload",
+        variant: "default"
       });
-
-      // Check response for inserted count or errors
-      if (res.data.errors && res.data.errors.length > 0) {
-        setErrors(res.data.errors);
-        setMessage("Some rows failed to upload");
-      } else {
-        setMessage(res.data.message || "Upload successful");
-        setErrors([]);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setMessage(err.response?.data?.message || "Upload failed");
-      setErrors([]);
+    } else {
+      setUploadMessage(response.message || "Upload successful");
+      setUploadErrors([]);
+      toast({
+        title: "Success",
+        description: response.message || "Students uploaded successfully",
+      });
     }
-  };
+  } catch (error: any) {
+    console.error(error);
+    setUploadMessage(error.message || "Upload failed");
+    setUploadErrors([]);
+    toast({
+      title: "Error",
+      description: error.message || "Upload failed",
+      variant: "destructive"
+    });
+  }
+};
 
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        setFile(e.target.files[0]);
-        setMessage("");
-        setErrors([]);
-      }
-    };
-
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files[0]) {
+    setFile(e.target.files[0]);
+    setUploadMessage("");
+    setUploadErrors([]);
+  }
+};
 
 
   const renderReceptionistModules = () => {
