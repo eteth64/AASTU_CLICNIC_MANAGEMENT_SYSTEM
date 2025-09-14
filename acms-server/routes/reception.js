@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(protect, checkRole('reception'));
 
-router.get('/students/:studentId', searchStudent);
+router.post('/students', searchStudent);
 router.post('/requests', createRequest);
 router.get('/analytics', fetchAnalytics);
 

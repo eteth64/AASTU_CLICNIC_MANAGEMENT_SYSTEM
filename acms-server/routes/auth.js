@@ -13,7 +13,7 @@ const router = express.Router();
 // 🔐 Login
 router.post('/login', login);
 
-// 👤 Get current user (requires token)
+// 👤 Get c urrent user (requires token)
 router.get('/me', protect, getMe);
 
 // 🔑 Change password (requires token)

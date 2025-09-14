@@ -51,21 +51,35 @@ const LabOrder = {
 
     getResultByRequestId: (requestId, callback) => {
         const query = `
-            SELECT 
-                lo.request_id,
-                u.first_name AS technician_name,
-                lr.lab_result,
-                lr.technical_notes
-            FROM lab_results lr
-            JOIN lab_orders lo ON lr.order_id = lo.order_id
-            LEFT JOIN users u ON lr.technician_id = u.user_id
-            WHERE lo.request_id = ? AND lo.status = 'completed';
-        `;
+        SELECT 
+            lo.request_id,
+            u.first_name AS technician_name,
+            JSON_UNQUOTE(JSON_EXTRACT(lr.lab_result, '$')) AS lab_result,
+            lr.technical_notes
+        FROM lab_results lr
+        JOIN lab_orders lo ON lr.order_id = lo.order_id
+        LEFT JOIN users u ON lr.technician_id = u.user_id
+        WHERE lo.request_id = ? AND lo.status = 'completed';
+    `;
         db.execute(query, [requestId], (error, results) => {
             if (error) {
                 return callback(error, null);
             }
-            callback(null, results);
+
+            // Parse the JSON strings
+            const parsedResults = results.map(result => {
+                try {
+                    return {
+                        ...result,
+                        lab_result: JSON.parse(result.lab_result)
+                    };
+                } catch (parseError) {
+                    console.error('Error parsing lab_result:', parseError);
+                    return result;
+                }
+            });
+
+            callback(null, parsedResults);
         });
     }
 }

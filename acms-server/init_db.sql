@@ -86,11 +86,14 @@ CREATE TABLE IF NOT EXISTS lab_results (
     result_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     technician_id INT,
-    lab_result TEXT NOT NULL,
+    lab_result JSON NOT NULL,  -- Changed from TEXT to JSON
     technical_notes TEXT,
-    completed_at TIMESTAMP NULL,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES lab_orders(order_id),
-    FOREIGN KEY (technician_id) REFERENCES users(user_id)
+    FOREIGN KEY (technician_id) REFERENCES users(user_id),
+    INDEX idx_order_id (order_id),
+    INDEX idx_technician_id (technician_id),
+    INDEX idx_completed_at (completed_at)
 );
 
 -- Prescription Requests Table

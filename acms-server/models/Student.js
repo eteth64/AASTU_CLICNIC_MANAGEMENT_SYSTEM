@@ -14,6 +14,7 @@ const Student = {
         db.query(query, [studentId], (err, results) => {
             if (err) return callback(err, null);
             callback(null, results[0]);
+
         });
     },
 

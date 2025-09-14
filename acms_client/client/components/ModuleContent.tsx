@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-import axiosInstance from "axios"; 
+import axiosInstance from "axios";
 import {
   Search,
   UserPlus,
@@ -48,6 +48,8 @@ import {
   adminAPIs
 } from '@/lib/api';
 import { open } from 'inspector/promises';
+import KeyValueInput from './KeyValueInput';
+import LabResultDisplay from './LabResultDisplay';
 
 interface ModuleContentProps {
   moduleTitle: string;
@@ -61,7 +63,7 @@ interface ModuleContentProps {
 interface LabResult {
   request_id: number;
   technician_name: string | null;
-  lab_result: string;
+  lab_result: Record<string, string>;
   technical_notes: string | null;
 }
 
@@ -99,7 +101,7 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
     pharmacyDiagnosis: '',
     pharmacyInstructions: '',
     resultStudentId: '',
-    labResults: '',
+    labResults: {},
     technicianNotes: '',
     newRole: '',
     roleChangeReason: '',
@@ -163,18 +165,22 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
   const [patientHistory, setPatientHistory] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInventory, setSelectedInventory] = useState(null);
-    const [file, setFile] = useState<File | null>(null);
-    const [message, setMessage] = useState("");
-    const [errors, setErrors] = useState<string[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
 
   const labTestOptions = [
-    { value: 'cbc', label: 'Complete Blood Count (CBC)' },
-    { value: 'blood_sugar', label: 'Blood Sugar Level' },
+    { value: 'serology', label: 'Serology' },
+    { value: 'stool', label: 'Stool' },
     { value: 'urinalysis', label: 'Urinalysis' },
+    {
+      value: "hematology", label: "Hematology"
+    }
+
 
   ];
 
- 
+
 
 
   const inventoryCategories = [
@@ -287,14 +293,14 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
     }
   };
 
-  const handleSendToDoctor = async () => {
+  const handleSendToDoctor = async (studentId: string) => {
     console.log("Sending to doctor:", formData.priority);
-    console.log("Student ID:", studentData?.student[0].student_id);
+    console.log("Student ID:", studentData?.student.student_id);
     if (!studentData?.students?.[0]) console.log("error");
 
     try {
       await receptionAPI.createRequest({
-        student_id: studentData?.student?.[0].student_id,
+        student_id: studentId,
         priority_level: formData.priority || 'routine',
         initial_notes: formData.receptionNotes || ''
       });
@@ -408,11 +414,13 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
     }
   };
 
-  const handleSubmitLabResult = async (orderId: string, result: string, notes: string) => {
+  const handleSubmitLabResult = async (orderId: string, results: Record<string, string>, notes: string) => {
     try {
+      // results should be in the format: { "key1":"value1","key2":"value2" }
       await labAPI.submitLabResult({
-        order_id: orderId,
-        lab_result: result,
+        order_id: parseInt(orderId),
+
+        lab_result: results, // This is the object format you want
         technical_notes: notes
       });
 
@@ -462,6 +470,8 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
         title: "Success",
         description: "Lab results fetched successfully",
       });
+
+      console.log('Lab results fetched successfully:', data[0].lab_result);
 
       setLabResults(data)
 
@@ -791,69 +801,69 @@ export default function ModuleContent({ moduleTitle, moduleKey, role, setSelecte
   };
 
 
-// add the comment
+  // add the comment
 
 
 
-// Add these state variables to your component
-// const [file, setFile] = useState<File | null>(null);
-const [uploadMessage, setUploadMessage] = useState("");
-const [uploadErrors, setUploadErrors] = useState<any[]>([]);
+  // Add these state variables to your component
+  // const [file, setFile] = useState<File | null>(null);
+  const [uploadMessage, setUploadMessage] = useState("");
+  const [uploadErrors, setUploadErrors] = useState<any[]>([]);
 
-// Add these handle functions
-const handleUpload = async () => {
-  if (!file) {
-    setUploadMessage("Please select a CSV file");
-    toast({
-      title: "Error",
-      description: "Please select a CSV file",
-      variant: "destructive"
-    });
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    const response = await adminAPIs.uploadStudents(formData);
-
-    // Check response for inserted count or errors
-    if (response.errors && response.errors.length > 0) {
-      setUploadErrors(response.errors);
-      setUploadMessage("Some rows failed to upload");
+  // Add these handle functions
+  const handleUpload = async () => {
+    if (!file) {
+      setUploadMessage("Please select a CSV file");
       toast({
-        title: "Warning",
-        description: "Some rows failed to upload",
-        variant: "default"
+        title: "Error",
+        description: "Please select a CSV file",
+        variant: "destructive"
       });
-    } else {
-      setUploadMessage(response.message || "Upload successful");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await adminAPIs.uploadStudents(formData);
+
+      // Check response for inserted count or errors
+      if (response.errors && response.errors.length > 0) {
+        setUploadErrors(response.errors);
+        setUploadMessage("Some rows failed to upload");
+        toast({
+          title: "Warning",
+          description: "Some rows failed to upload",
+          variant: "default"
+        });
+      } else {
+        setUploadMessage(response.message || "Upload successful");
+        setUploadErrors([]);
+        toast({
+          title: "Success",
+          description: response.message || "Students uploaded successfully",
+        });
+      }
+    } catch (error: any) {
+      console.error(error);
+      setUploadMessage(error.message || "Upload failed");
       setUploadErrors([]);
       toast({
-        title: "Success",
-        description: response.message || "Students uploaded successfully",
+        title: "Error",
+        description: error.message || "Upload failed",
+        variant: "destructive"
       });
     }
-  } catch (error: any) {
-    console.error(error);
-    setUploadMessage(error.message || "Upload failed");
-    setUploadErrors([]);
-    toast({
-      title: "Error",
-      description: error.message || "Upload failed",
-      variant: "destructive"
-    });
-  }
-};
+  };
 
-const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files[0]) {
-    setFile(e.target.files[0]);
-    setUploadMessage("");
-    setUploadErrors([]);
-  }
-};
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      setUploadMessage("");
+      setUploadErrors([]);
+    }
+  };
 
 
   const renderReceptionistModules = () => {
@@ -925,7 +935,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <CardContent>
                 <div className="flex space-x-4">
                   <Input
-                    placeholder="Enter Student ID (e.g., AASTU001)"
+                    placeholder="Enter Student ID (e.g.,  ETS0011/14)"
                     className="flex-1"
                     value={formData.studentId || ''}
                     onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
@@ -1081,7 +1091,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                         <Button
                           className="flex-1"
                           style={{ backgroundColor: 'rgb(17,40,77)' }}
-                          onClick={handleSendToDoctor}
+                          onClick={() => handleSendToDoctor(studentData?.student?.student_id)}
                         >
                           Confirm and Send
                         </Button>
@@ -1164,7 +1174,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <div>
                   <Label>Student ID Number</Label>
                   <Input
-                    placeholder="Enter Student ID (e.g., AASTU001)"
+                    placeholder="Enter Student ID (e.g., ETS0011/14)"
                     value={formData.sendStudentId || ''}
                     onChange={(e) => setFormData({ ...formData, sendStudentId: e.target.value })}
                   />
@@ -1186,7 +1196,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   </Select>
                 </div>
 
-                <Button className="w-full" onClick={handleSendToDoctor}>Send to Doctor</Button>
+                <Button className="w-full" onClick={() => handleSendToDoctor(formData.sendStudentId)}>Send to Doctor</Button>
               </CardContent>
             </Card>
 
@@ -1548,7 +1558,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                                         </div>
                                         <div>
                                           <Label className="text-xs font-medium">Lab Result</Label>
-                                          <p className="text-sm">{result.lab_result}</p>
+                                          <LabResultDisplay labResult={result.lab_result} />
                                         </div>
                                         <div>
                                           <Label className="text-xs font-medium">Technical Notes</Label>
@@ -1713,7 +1723,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <div>
                   <Label>Student ID Number</Label>
                   <Input
-                    placeholder="Enter Student ID (e.g., AASTU001)"
+                    placeholder="Enter Student ID (e.g., ETS0011/14)"
                     value={formData.labStudentId || ''}
                     onChange={(e) => setFormData({ ...formData, labStudentId: e.target.value })}
                   />
@@ -1916,7 +1926,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             <div>
                               <Label>Student ID Number</Label>
                               <Input
-                                placeholder="Enter Student ID (e.g., AASTU001)"
+                                placeholder="Enter Student ID (e.g., ETS0011/14)"
                                 value={formData.resultStudentId || ''}
                                 onChange={(e) => setFormData({ ...formData, resultStudentId: e.target.value })}
                               />
@@ -2010,7 +2020,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <div>
                   <Label>Student ID Number</Label>
                   <Input
-                    placeholder="Enter Student ID (e.g., AASTU001)"
+                    placeholder="Enter Student ID (e.g., ETS0011/14)"
                     value={formData.nurseStudentId || ''}
                     onChange={(e) => setFormData({ ...formData, nurseStudentId: e.target.value })}
                   />
@@ -2121,7 +2131,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 <div>
                   <Label>Student ID Number</Label>
                   <Input
-                    placeholder="Enter Student ID (e.g., AASTU001)"
+                    placeholder="Enter Student ID (e.g., ETS0011/14)"
                     value={formData.pharmacyStudentId || ''}
                     onChange={(e) => setFormData({ ...formData, pharmacyStudentId: e.target.value })}
                   />
@@ -2360,22 +2370,12 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             <div className="space-y-4">
                               <div>
                                 <Label>Test Results</Label>
-                                <Textarea
-                                  placeholder="Enter detailed test results..."
-                                  rows={6}
-                                  value={formData.labResults}
-                                  onChange={(e) => setFormData({ ...formData, labResults: e.target.value })}
+                                <KeyValueInput
+                                  onChange={(results) => setFormData({ ...formData, labResults: results })}
                                 />
-                              </div>
-
-                              <div>
-                                <Label>Technician Notes (Optional)</Label>
-                                <Textarea
-                                  placeholder="Any additional notes or observations..."
-                                  rows={3}
-                                  value={formData.technicianNotes}
-                                  onChange={(e) => setFormData({ ...formData, technicianNotes: e.target.value })}
-                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Add test names and their results. New fields will appear automatically as you type.
+                                </p>
                               </div>
 
                               <div className="flex space-x-3">
@@ -2717,7 +2717,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               onClick={() => {
 
 
-                              
+
                                 handleDispenseMedication(
                                   prescriptionRequests.find((req) => req.inventory_id === selectedInventory[0].inventory_id)
                                     ?.prescription_drug_id,
@@ -3168,7 +3168,7 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const filteredStudents = students.filter(student => {
     return (
       (!studentFilters.department || student.department === studentFilters.department) &&
-      (!studentFilters.year || student.year_of_study.toString() == studentFilters.year) &&
+      (!studentFilters.year || student.year_of_study == studentFilters.year) &&
       (!studentFilters.visitStatus || student.visitStatus === studentFilters.visitStatus)
     );
   });
@@ -3593,8 +3593,8 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Departments</SelectItem>
-                      {filteredStudents.map( student => (
-                        <SelectItem key={student.student_id} value={student.department}>{student.department }</SelectItem>
+                      {filteredStudents.map(student => (
+                        <SelectItem key={student.student_id} value={student.department}>{student.department}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -3992,37 +3992,37 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           </Card>
         );
       case 'Upload':
-                return (
-            <div className="p-4">
-              <h1 className="text-xl font-bold mb-4">Upload Students CSV</h1>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileChange}
-                className="border p-2 rounded"
-              />
-              <button
-                onClick={handleUpload}
-                className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Upload
-              </button>
+        return (
+          <div className="p-4">
+            <h1 className="text-xl font-bold mb-4">Upload Students CSV</h1>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="border p-2 rounded"
+            />
+            <button
+              onClick={handleUpload}
+              className="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Upload
+            </button>
 
-              {message && <p className="mt-4 text-green-600">{message}</p>}
+            {message && <p className="mt-4 text-green-600">{message}</p>}
 
-              {errors.length > 0 && (
-                <div className="mt-2 text-red-600">
-                  <p>Errors:</p>
-                  <ul className="list-disc pl-5">
-                    {errors.map((err, idx) => (
-                      <li key={idx}>{err}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          );
-        default:
+            {errors.length > 0 && (
+              <div className="mt-2 text-red-600">
+                <p>Errors:</p>
+                <ul className="list-disc pl-5">
+                  {errors.map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        );
+      default:
         return (
           <Card>
             <CardHeader>

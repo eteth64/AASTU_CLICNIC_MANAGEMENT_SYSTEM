@@ -3,8 +3,12 @@ const db = require('../config/database');
 const LabResult = {
     create: (resultData, callback) => {
         const { order_id, technician_id, lab_result, technical_notes } = resultData;
+
+        // Convert the JavaScript object to a JSON string
+        const labResultJson = JSON.stringify(lab_result);
+
         const query = 'INSERT INTO lab_results (order_id, technician_id, lab_result, technical_notes) VALUES (?, ?, ?, ?)';
-        db.execute(query, [order_id, technician_id, lab_result, technical_notes], callback);
+        db.execute(query, [order_id, technician_id, labResultJson, technical_notes], callback);
     },
 
     findByOrderId: (orderId, callback) => {

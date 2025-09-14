@@ -3,7 +3,7 @@ const PatientHistory = require('../models/PatientHistory');
 const StudentData = require('../models/Student')
 
 const searchStudent = (req, res) => {
-    const { studentId } = req.params;
+    const { studentId } = req.body;
 
     // Fetch student data
     StudentData.findById(studentId, (error, student) => {
@@ -47,6 +47,7 @@ const createRequest = (req, res) => {
 
     ReceptionRequest.create({ student_id, receptionist_id, priority_level, initial_notes }, (error, results) => {
         if (error) {
+
             return res.status(500).json({ message: 'Server error' });
         }
 

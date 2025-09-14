@@ -66,7 +66,10 @@ export const adminAPI = {
 
 // Reception API calls
 export const receptionAPI = {
-  searchStudent: (studentId: string) => apiRequest(`/reception/students/${studentId}`),
+  searchStudent: (studentId: string) => apiRequest(`/reception/students`, {
+      method: 'POST',
+      body:JSON.stringify({studentId}),
+    }),
   getAnalytics: () => apiRequest('/reception/analytics'),
   createRequest: (requestData: any) =>
     apiRequest('/reception/requests', {
