@@ -17,7 +17,7 @@ const StudentList: React.FC = () => {
   const [filtered, setFiltered] = useState<Student[]>([]);
 
   useEffect(() => {
-    fetchStudents();
+    fetchStudents();  
   }, []);
 
   useEffect(() => {

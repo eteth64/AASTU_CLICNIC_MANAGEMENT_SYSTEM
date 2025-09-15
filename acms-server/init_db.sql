@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS lab_orders (
     FOREIGN KEY (doctor_id) REFERENCES users(user_id)
 );
 
+
 -- Lab Results Table
 CREATE TABLE IF NOT EXISTS lab_results (
     result_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -120,6 +121,7 @@ CREATE TABLE IF NOT EXISTS inventory (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 
 
 CREATE TABLE IF NOT EXISTS prescription_drugs (
